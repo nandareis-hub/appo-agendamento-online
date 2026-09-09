@@ -1,3 +1,36 @@
+<?php
+
+require_once 'conexao.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $email = $_POST['email'];
+    $password = $_POST['palavra_passe'];
+
+    // Query para verificar o utilizador
+    $sql = "SELECT id_utilizador, nome, email, password
+            FROM utilizadores
+            WHERE email = :email
+            AND password = :password";
+
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->execute([
+        ':email' => $email,
+        ':password' => $password
+    ]);
+
+    $utilizador = $stmt->fetch();
+
+    if ($utilizador) {
+        echo "Login realizado com sucesso!";
+    } else {
+        echo "E-mail ou palavra-passe incorretos.";
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
