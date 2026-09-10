@@ -1,6 +1,8 @@
 <?php
 
-require_once 'conexao.php';
+require_once __DIR__ . '/../includes/conexao.php';
+
+/** @var PDO $pdo */
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -28,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "E-mail ou palavra-passe incorretos.";
     }
 }
-
 ?>
 
 <!DOCTYPE html>
