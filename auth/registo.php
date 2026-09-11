@@ -1,49 +1,93 @@
+<?php
+session_start();
+require_once __DIR__ . '/../includes/conexao.php';
+require_once __DIR__ . '/../includes/funcoes.php';
+
+if (isLoggedIn()) {
+    header('Location: ../painel/home.php');
+    exit;
+}
+
+$erro = '';
+$sucesso = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = trim($_POST['nome'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $senha = $_POST['senha'] ?? '';
+    $confirmar = $_POST['confirmar'] ?? '';
+
+    if ($nome === '' || $email === '' || $senha === '' || $confirmar === '') {
+        $erro = 'Por favor, preencha todos os campos.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erro = 'Email inválido.';
+    } elseif ($senha !== $confirmar) {
+        $erro = 'As senhas não coincidem.';
+    } else {
+        if (obterUtilizadorPorEmail($pdo, $email)) {
+            $erro = 'Já existe um utilizador com este email.';
+        } else {
+            $hash = password_hash($senha, PASSWORD_DEFAULT);
+            if (registarUtilizador($pdo, $nome, $email, $hash)) {
+                $sucesso = 'Registo efetuado com sucesso. Já pode fazer login.';
+            } else {
+                $erro = 'Ocorreu um erro ao registar. Tente novamente.';
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appo - Registo</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/validacao.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h2>Criar Conta</h2>
-            <form id="form-registo" action="registo.php" method="POST" novalidate>
-                <div class="form-group">
-                    <label for="nome">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" placeholder="Seu nome completo">
-                    <span class="mensagem-erro" id="erro-nome">O nome é obrigatório.</span>
-                </div>
+<div class="container">
+    <h1>Appo — Agendamentos Online</h1>
+    <h2>Registo</h2>
 
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="seu@email.com">
-                    <span class="mensagem-erro" id="erro-email">Insira um e-mail válido.</span>
-                </div>
+    <?php if ($erro): ?>
+        <div class="alert erro"><?php echo htmlspecialchars($erro); ?></div>
+    <?php endif; ?>
 
-                <div class="form-group">
-                    <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone" placeholder="912345678">
-                    <span class="mensagem-erro" id="erro-telefone">Insira um telefone válido (9 dígitos).</span>
-                </div>
+    <?php if ($sucesso): ?>
+        <div class="alert sucesso"><?php echo htmlspecialchars($sucesso); ?></div>
+    <?php endif; ?>
 
-                <div class="form-group">
-                    <label for="palavra_passe">Palavra-passe</label>
-                    <input type="password" id="palavra_passe" name="palavra_passe" placeholder="Mínimo 6 caracteres">
-                    <span class="mensagem-erro" id="erro-senha">A palavra-passe deve ter pelo menos 6 caracteres.</span>
-                </div>
-
-                <button type="submit" class="btn">Registar</button>
-            </form>
-
-            <div class="link-box">
-                <p>Já tem conta? <a href="login.php">Faça Login</a></p>
-            </div>
+    <form id="form-registo" method="post" action="registo.php" onsubmit="return validarRegisto();">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" name="nome" id="nome" required>
         </div>
-    </div>
 
-    <script src="../js/validacao.js"></script>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" name="senha" id="senha" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmar">Confirmar senha:</label>
+            <input type="password" name="confirmar" id="confirmar" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Registar</button>
+        </div>
+
+        <p class="link">
+            Já tem conta?
+            <a href="login.php">Entrar</a>
+        </p>
+    </form>
+</div>
 </body>
 </html>
