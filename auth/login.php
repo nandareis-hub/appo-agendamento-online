@@ -4,6 +4,8 @@ session_start();
 
 require_once __DIR__ . '/../includes/conexao.php';
 
+$erro = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $email = trim($_POST['email'] ?? '');
@@ -56,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Appo - Login</title>
 
     <link rel="stylesheet" href="../css/style.css">
@@ -69,15 +72,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <h2>Appo Agendamentos</h2>
 
-            <?php if (!empty($erro)): ?>
-                <p class="mensagem-erro"><?= htmlspecialchars($erro) ?></p>
+            <?php if ($erro !== ''): ?>
+                <div class="alert erro">
+                    <?= htmlspecialchars($erro) ?>
+                </div>
             <?php endif; ?>
 
             <form id="form-login" action="login.php" method="POST" novalidate>
 
                 <div class="form-group">
 
-                    <label for="email">E-mail</label>
+                    <label for="email">
+                        E-mail
+                    </label>
 
                     <input
                         type="email"
@@ -94,7 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-group">
 
-                    <label for="palavra_passe">Palavra-passe</label>
+                    <label for="palavra_passe">
+                        Palavra-passe
+                    </label>
 
                     <input
                         type="password"
@@ -119,7 +128,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <p>
                     Ainda não tem conta?
-                    <a href="registo.php">Registe-se aqui</a>
+                    <a href="registo.php">
+                        Registe-se aqui
+                    </a>
                 </p>
 
             </div>
