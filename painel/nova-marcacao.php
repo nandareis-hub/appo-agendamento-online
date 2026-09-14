@@ -1,3 +1,13 @@
+<?php
+
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../auth/login.php');
+    exit;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -12,9 +22,9 @@
         <h1>Appo — Agendamentos Online</h1>
 
         <nav class="menu">
-            <a href="home.html">Início</a>
-            <a href="minhas-marcacoes.html">Minhas marcações</a>
-            <a href="nova-marcacao.html">Nova marcação</a>
+            <a href="home.php">Início</a>
+            <a href="minhas-marcacoes.php">Minhas marcações</a>
+            <a href="nova-marcacao.php">Nova marcação</a>
         </nav>
     </header>
 
