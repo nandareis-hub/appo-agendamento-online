@@ -3,6 +3,8 @@
 session_start();
 
 require_once __DIR__ . '/../includes/conexao.php';
+require_once __DIR__ . '/../includes/funcoes.php';
+
 
 $erro = '';
 
@@ -18,37 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
 
         // Query para verificar o utilizador
-        $sql = "SELECT id_utilizador, nome, email, password
-                FROM utilizadores
-                WHERE email = :email
-                AND password = :password";
+    $utilizador = obterUtilizadorPorEmail($pdo, $email);
 
-        $stmt = $pdo->prepare($sql);
+        if ($utilizador && password_verify($password, $utilizador['password'])) {
 
-        $stmt->execute([
-            ':email' => $email,
-            ':password' => $password
-        ]);
+    $_SESSION['user_id'] = $utilizador['id_utilizador'];
+    $_SESSION['user_nome'] = $utilizador['nome'];
+    $_SESSION['user_email'] = $utilizador['email'];
+    $_SESSION['user_tipo'] = $utilizador['tipo'];
 
-        $utilizador = $stmt->fetch();
+    header('Location: ../painel/home.php');
+    exit;
 
-        if ($utilizador) {
+    } else {
 
-            // Guardar os dados do utilizador na sessão
-            $_SESSION['user_id'] = $utilizador['id_utilizador'];
-            $_SESSION['user_nome'] = $utilizador['nome'];
-            $_SESSION['user_email'] = $utilizador['email'];
-
-            // Login realizado com sucesso
-            header('Location: ../painel/home.php');
-            exit;
-
-        } else {
-
-            $erro = 'E-mail ou palavra-passe incorretos.';
+    $erro = 'E-mail ou palavra-passe incorretos.';
         }
+
     }
+
 }
+
+
 
 ?>
 
@@ -144,3 +137,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
+
