@@ -49,12 +49,14 @@ try {
     </header>
 
 
+
     <!-- NAVEGAÇÃO -->
     <nav class="menu">
         <a href="home.php" class="active">Início</a>
         <a href="minhas-marcacoes.php">Minhas marcações</a>
         <a href="nova-marcacao.php" class="btn-destaque">+ Nova marcação</a>
     </nav>
+
 
 
     <!-- CONTEÚDO PRINCIPAL -->
