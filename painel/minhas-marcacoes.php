@@ -113,12 +113,18 @@ try {
                                 <td style="padding:10px;"><?= date('d/m/Y', strtotime($m['data'])) ?> às <?= date('H:i', strtotime($m['hora'])) ?></td>
                                 <td style="padding:10px;"><?= number_format($m['preco'], 2, ',', '.') ?>€</td>
                                 <td style="padding:10px;"><strong><?= htmlspecialchars($m['estado']) ?></strong></td>
-                                <td style="padding:10px;">
-                                    <a href="minhas-marcacoes.php?cancelar=<?= $m['id_marcacao'] ?>" 
-                                       style="background-color: #dc3545; color: white; padding: 6px 12px; border-radius:4px; text-decoration:none; font-size:14px;"
-                                       onclick="return confirm('Tem a certeza que deseja cancelar esta marcação?');">
-                                       Cancelar
-                                    </a>
+                                <td>
+                                    <a href="editar-marcacao.php?id=<?= $m['id_marcacao'] ?>"
+                                     style="background:#007bff; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px;">
+                                     Editar
+                                </a>
+
+                                <a href="minhas-marcacoes.php?cancelar=<?= $m['id_marcacao'] ?>"
+                                    style="background:#dc3545; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px;"
+                                    onclick="return confirm('Tem a certeza que deseja cancelar esta marcação?');">
+                                    Cancelar
+                                </a>
+                                </td>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
