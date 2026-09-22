@@ -24,12 +24,14 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appo - Painel Principal</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
 
 <div class="container layout-painel">
@@ -43,7 +45,9 @@ try {
             <span>Olá, <strong><?= htmlspecialchars($nomeUtilizador) ?></strong> (<?= htmlspecialchars($tipoUtilizador) ?>)</span>
             <a class="btn-sair" href="../auth/logout.php">Sair</a>
         </div>
+
     </header>
+
 
     <!-- NAVEGAÇÃO -->
     <nav class="menu">
@@ -51,6 +55,7 @@ try {
         <a href="minhas-marcacoes.php">Minhas marcações</a>
         <a href="nova-marcacao.php" class="btn-destaque">+ Nova marcação</a>
     </nav>
+
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="card-conteudo">
@@ -69,7 +74,9 @@ try {
             <p>Use o menu superior para agendar novos horários ou consultar e gerir os seus agendamentos ativos.</p>
         </div>
     </main>
+
 </div>
 
 </body>
+
 </html>
