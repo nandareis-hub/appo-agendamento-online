@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Verifica se existe um utilizador autenticado.
+ * Verifica se existe um utilizador autenticado na sessão.
  *
  * @return bool
  */
@@ -10,9 +10,8 @@ function isLoggedIn(): bool
     return isset($_SESSION['user_id']);
 }
 
-
 /**
- * Procura um utilizador pelo email.
+ * Procura um utilizador pelo e-mail.
  *
  * @param PDO $pdo
  * @param string $email
@@ -27,6 +26,7 @@ function obterUtilizadorPorEmail(PDO $pdo, string $email): ?array
             email,
             password,
             telefone,
+            tipo,
             data_registo
         FROM utilizadores
         WHERE email = :email
@@ -34,20 +34,12 @@ function obterUtilizadorPorEmail(PDO $pdo, string $email): ?array
     ";
 
     $stmt = $pdo->prepare($sql);
-
-    $stmt->execute([
-        ':email' => $email
-    ]);
+    $stmt->execute([':email' => $email]);
 
     $utilizador = $stmt->fetch();
 
-    if ($utilizador === false) {
-        return null;
-    }
-
-    return $utilizador;
+    return $utilizador ?: null;
 }
-
 
 /**
  * Regista um novo utilizador na base de dados.
@@ -55,27 +47,33 @@ function obterUtilizadorPorEmail(PDO $pdo, string $email): ?array
  * @param PDO $pdo
  * @param string $nome
  * @param string $email
- * @param string $password
+ * @param string $password (Hash gerado por password_hash)
+ * @param string|null $telefone
+ * @param string $tipo ('cliente' por padrão)
  * @return bool
  */
 function registarUtilizador(
     PDO $pdo,
     string $nome,
     string $email,
-    string $password
+    string $password,
+    ?string $telefone = null,
+    string $tipo = 'cliente'
 ): bool {
     $sql = "
         INSERT INTO utilizadores
-            (nome, email, password)
+            (nome, email, password, telefone, tipo)
         VALUES
-            (:nome, :email, :password)
+            (:nome, :email, :password, :telefone, :tipo)
     ";
 
     $stmt = $pdo->prepare($sql);
 
     return $stmt->execute([
-        ':nome' => $nome,
-        ':email' => $email,
-        ':password' => $password
+        ':nome'     => $nome,
+        ':email'    => $email,
+        ':password' => $password,
+        ':telefone' => $telefone,
+        ':tipo'     => $tipo
     ]);
 }
