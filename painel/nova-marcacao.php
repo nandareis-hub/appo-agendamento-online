@@ -39,6 +39,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($idServico) || empty($idProfissional) || empty($dataInput) || empty($horaInput)) {
         $mensagemErro = "Por favor, preencha todos os campos do formulário.";
     } else {
+
+        // Verificar se o profissional pode realizar o serviço
+        $stmtVerifica = $pdo->prepare("
+        SELECT * FROM profissional_servico
+        WHERE id_profissional = :profissional
+        AND id_servico = :servico
+    ");
+
+    $stmtVerifica->execute([
+        ':profissional' => $idProfissional,
+        ':servico' => $idServico
+    ]);
+
+    $permissao = $stmtVerifica->fetch();
+
+    if (!$permissao) {
+        $mensagemErro = "A profissional selecionada não realiza este serviço.";
+    } else {
         try {
             $sql = "INSERT INTO marcacoes (id_utilizador, id_profissional, id_servico, data, hora, estado) 
                     VALUES (:user_id, :profissional_id, :servico_id, :data, :hora, 'Pendente')";
@@ -55,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             $mensagemErro = "Erro ao guardar a marcação: " . $e->getMessage();
         }
+      }
     }
 }
 ?>
