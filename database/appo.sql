@@ -126,6 +126,7 @@ CREATE TABLE `utilizadores` (
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `telefone` varchar(20) DEFAULT NULL,
+  `tipo` ENUM('cliente','profissional','admin') DEFAULT 'cliente',
   `data_registo` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -133,10 +134,12 @@ CREATE TABLE `utilizadores` (
 -- Extraindo dados da tabela `utilizadores`
 --
 
-INSERT INTO `utilizadores` (`id_utilizador`, `nome`, `email`, `password`, `telefone`, `data_registo`) VALUES
-(1, 'Ana Silva', 'ana@email.com', '123456', '911111111', '2026-09-07 19:41:16'),
-(2, 'João Costa', 'joao@email.com', '123456', '922222222', '2026-09-07 19:41:16'),
-(3, 'Maria Oliveira', 'maria@email.com', '123456', '933333333', '2026-09-07 19:41:16');
+--INSERT INTO `utilizadores`
+--(`id_utilizador`, `nome`, `email`, `password`, `telefone`, `tipo`, `data_registo`)
+--VALUES
+--(1, 'Ana Silva', 'ana@email.com', '123456', '911111111', 'cliente', '2026-09-07 19:41:16'),
+--(2, 'João Costa', 'joao@email.com', '123456', '922222222', 'cliente', '2026-09-07 19:41:16'),
+--(3, 'Maria Oliveira', 'maria@email.com', '123456', '933333333', 'cliente', '2026-09-07 19:41:16');
 
 --
 -- Índices para tabelas despejadas
