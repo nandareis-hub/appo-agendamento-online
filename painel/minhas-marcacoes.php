@@ -26,23 +26,27 @@ if (isset($_GET['cancelar'])) {
             $mensagemSucesso = "Marcação cancelada com sucesso!";
         }
     } catch (PDOException $e) {
-        $mensagemErro = "Erro ao cancelar marcação.";
+        $mensagemErro = "Erro ao cancelar marcação: " . $e->getMessage();
     }
 }
 
-// Consultar marcações com os nomes dos serviços
+// Listar as marcações do utilizador ligado às tabelas de serviços e profissionais
 $marcacoes = [];
 try {
-    $sql = "SELECT m.id_marcacao, m.data_marcacao, s.nome AS servico_nome 
+    $sql = "SELECT m.id_marcacao, m.data, m.hora, m.estado, 
+                   s.nome AS servico_nome, s.preco, 
+                   p.nome AS profissional_nome 
             FROM marcacoes m 
-            LEFT JOIN servicos s ON m.id_servico = s.id_servico 
+            JOIN servicos s ON m.id_servico = s.id_servico 
+            JOIN profissionais p ON m.id_profissional = p.id_profissional 
             WHERE m.id_utilizador = :user_id 
-            ORDER BY m.id_marcacao DESC";
+            ORDER BY m.data DESC, m.hora DESC";
+            
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':user_id' => $userId]);
     $marcacoes = $stmt->fetchAll();
 } catch (PDOException $e) {
-    // Caso ocorra erro de coluna
+    $mensagemErro = "Erro ao consultar marcações: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -76,11 +80,11 @@ try {
         <h2>Minhas marcações</h2>
 
         <?php if (!empty($mensagemErro)): ?>
-            <div class="alert erro"><?= htmlspecialchars($mensagemErro) ?></div>
+            <div class="alert erro" style="background:#f8d7da; color:#721c24; padding:10px; border-radius:4px; margin-bottom:15px;"><?= htmlspecialchars($mensagemErro) ?></div>
         <?php endif; ?>
 
         <?php if (!empty($mensagemSucesso)): ?>
-            <div class="alert sucesso"><?= htmlspecialchars($mensagemSucesso) ?></div>
+            <div class="alert sucesso" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px; margin-bottom:15px;"><?= htmlspecialchars($mensagemSucesso) ?></div>
         <?php endif; ?>
 
         <?php if (empty($marcacoes)): ?>
@@ -94,19 +98,25 @@ try {
                     <thead>
                         <tr style="border-bottom: 2px solid #ccc; text-align:left;">
                             <th style="padding:10px;">Serviço</th>
+                            <th style="padding:10px;">Profissional</th>
                             <th style="padding:10px;">Data e Hora</th>
+                            <th style="padding:10px;">Preço</th>
+                            <th style="padding:10px;">Estado</th>
                             <th style="padding:10px;">Ação</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($marcacoes as $m): ?>
                             <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding:10px;"><?= htmlspecialchars($m['servico_nome'] ?? 'Serviço Agendado') ?></td>
-                                <td style="padding:10px;"><?= !empty($m['data_marcacao']) ? date('d/m/Y H:i', strtotime($m['data_marcacao'])) : 'Data a definir' ?></td>
+                                <td style="padding:10px;"><?= htmlspecialchars($m['servico_nome']) ?></td>
+                                <td style="padding:10px;"><?= htmlspecialchars($m['profissional_nome']) ?></td>
+                                <td style="padding:10px;"><?= date('d/m/Y', strtotime($m['data'])) ?> às <?= date('H:i', strtotime($m['hora'])) ?></td>
+                                <td style="padding:10px;"><?= number_format($m['preco'], 2, ',', '.') ?>€</td>
+                                <td style="padding:10px;"><strong><?= htmlspecialchars($m['estado']) ?></strong></td>
                                 <td style="padding:10px;">
                                     <a href="minhas-marcacoes.php?cancelar=<?= $m['id_marcacao'] ?>" 
                                        style="background-color: #dc3545; color: white; padding: 6px 12px; border-radius:4px; text-decoration:none; font-size:14px;"
-                                       onclick="return confirm('Tem a certeza que deseja cancelar?');">
+                                       onclick="return confirm('Tem a certeza que deseja cancelar esta marcação?');">
                                        Cancelar
                                     </a>
                                 </td>

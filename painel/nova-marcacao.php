@@ -15,38 +15,40 @@ $userId = $_SESSION['user_id'];
 $mensagemErro = '';
 $mensagemSucesso = '';
 
-// Buscar Serviços e Profissionais da Base de Dados
+// 1. Buscar Serviços e Profissionais ativos
 $servicos = [];
 $profissionais = [];
 
 try {
-    $stmtS = $pdo->query("SELECT * FROM servicos");
+    $stmtS = $pdo->query("SELECT * FROM servicos WHERE ativo = 1");
     $servicos = $stmtS->fetchAll();
 
-    $stmtP = $pdo->query("SELECT * FROM profissionais");
+    $stmtP = $pdo->query("SELECT * FROM profissionais WHERE ativo = 1");
     $profissionais = $stmtP->fetchAll();
 } catch (PDOException $e) {
     $mensagemErro = "Erro ao carregar dados: " . $e->getMessage();
 }
 
-// Processar Agendamento
+// 2. Processar Agendamento
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idServico = $_POST['id_servico'] ?? null;
     $idProfissional = $_POST['id_profissional'] ?? null;
-    $dataHora = $_POST['data_hora'] ?? null;
+    $dataInput = $_POST['data'] ?? null;
+    $horaInput = $_POST['hora'] ?? null;
 
-    if (empty($idServico) || empty($dataHora)) {
-        $mensagemErro = "Por favor, preencha todos os campos obrigatórios.";
+    if (empty($idServico) || empty($idProfissional) || empty($dataInput) || empty($horaInput)) {
+        $mensagemErro = "Por favor, preencha todos os campos do formulário.";
     } else {
         try {
-            $sql = "INSERT INTO marcacoes (id_utilizador, id_servico, id_profissional, data_marcacao) 
-                    VALUES (:user_id, :servico_id, :profissional_id, :data_hora)";
+            $sql = "INSERT INTO marcacoes (id_utilizador, id_profissional, id_servico, data, hora, estado) 
+                    VALUES (:user_id, :profissional_id, :servico_id, :data, :hora, 'Pendente')";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                ':user_id' => $userId,
-                ':servico_id' => $idServico,
-                ':profissional_id' => $idProfissional ?: null,
-                ':data_hora' => $dataHora
+                ':user_id'         => $userId,
+                ':profissional_id' => $idProfissional,
+                ':servico_id'      => $idServico,
+                ':data'            => $dataInput,
+                ':hora'            => $horaInput
             ]);
 
             $mensagemSucesso = "Marcação agendada com sucesso!";
@@ -87,11 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Nova marcação</h2>
 
         <?php if (!empty($mensagemErro)): ?>
-            <div class="alert erro"><?= htmlspecialchars($mensagemErro) ?></div>
+            <div class="alert erro" style="background:#f8d7da; color:#721c24; padding:10px; border-radius:4px; margin-bottom:15px;"><?= htmlspecialchars($mensagemErro) ?></div>
         <?php endif; ?>
 
         <?php if (!empty($mensagemSucesso)): ?>
-            <div class="alert sucesso"><?= htmlspecialchars($mensagemSucesso) ?></div>
+            <div class="alert sucesso" style="background:#d4edda; color:#155724; padding:10px; border-radius:4px; margin-bottom:15px;"><?= htmlspecialchars($mensagemSucesso) ?></div>
         <?php endif; ?>
 
         <form action="nova-marcacao.php" method="POST">
@@ -100,29 +102,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="id_servico" id="id_servico" class="form-control" style="width:100%; padding:10px;" required>
                     <option value="" disabled selected>-- Selecione um serviço --</option>
                     <?php foreach ($servicos as $s): ?>
-                        <option value="<?= $s['id_servico'] ?? $s['id'] ?>">
-                            <?= htmlspecialchars($s['nome'] ?? $s['nome_servico'] ?? 'Serviço') ?> 
-                            <?= isset($s['preco']) ? '- ' . $s['preco'] . '€' : '' ?>
+                        <option value="<?= $s['id_servico'] ?>">
+                            <?= htmlspecialchars($s['nome']) ?> (<?= $s['duracao'] ?> min) - <?= number_format($s['preco'], 2, ',', '.') ?>€
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="id_profissional" style="display:block; font-weight:bold; margin-bottom: 5px;">Profissional (Opcional):</label>
-                <select name="id_profissional" id="id_profissional" class="form-control" style="width:100%; padding:10px;">
-                    <option value="">-- Qualquer profissional disponível --</option>
+                <label for="id_profissional" style="display:block; font-weight:bold; margin-bottom: 5px;">Profissional:</label>
+                <select name="id_profissional" id="id_profissional" class="form-control" style="width:100%; padding:10px;" required>
+                    <option value="" disabled selected>-- Selecione um profissional --</option>
                     <?php foreach ($profissionais as $p): ?>
-                        <option value="<?= $p['id_profissional'] ?? $p['id'] ?>">
-                            <?= htmlspecialchars($p['nome'] ?? 'Profissional') ?>
+                        <option value="<?= $p['id_profissional'] ?>">
+                            <?= htmlspecialchars($p['nome']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="data" style="display:block; font-weight:bold; margin-bottom: 5px;">Data:</label>
+                <input type="date" name="data" id="data" class="form-control" style="width:100%; padding:10px;" required>
+            </div>
+
             <div class="form-group" style="margin-bottom: 20px;">
-                <label for="data_hora" style="display:block; font-weight:bold; margin-bottom: 5px;">Data e Hora:</label>
-                <input type="datetime-local" name="data_hora" id="data_hora" class="form-control" style="width:100%; padding:10px;" required>
+                <label for="hora" style="display:block; font-weight:bold; margin-bottom: 5px;">Hora:</label>
+                <input type="time" name="hora" id="hora" class="form-control" style="width:100%; padding:10px;" required>
             </div>
 
             <div class="form-actions">
