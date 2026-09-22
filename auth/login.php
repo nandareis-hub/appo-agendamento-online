@@ -12,21 +12,29 @@ $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
-    $senha = $_POST['senha'] ?? '';
+    $password = $_POST['palavra_passe'] ?? '';
 
-    if ($email === '' || $senha === '') {
+    if ($email === '' || $password === '') {
         $erro = 'Por favor, preencha todos os campos.';
     } else {
-        $utilizador = obterUtilizadorPorEmail($pdo, $email);
-        if ($utilizador && password_verify($senha, $utilizador['senha'])) {
-            $_SESSION['user_id'] = $utilizador['id'];
+        // Consulta o utilizador pelo e-mail
+        $sql = "SELECT id_utilizador, nome, email, password 
+                FROM utilizadores 
+                WHERE email = :email";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':email' => $email]);
+        $utilizador = $stmt->fetch();
+
+        // Verifica o hash da palavra-passe guardada no registo
+        if ($utilizador && password_verify($password, $utilizador['password'])) {
+            $_SESSION['user_id'] = $utilizador['id_utilizador'];
             $_SESSION['user_nome'] = $utilizador['nome'];
             $_SESSION['user_email'] = $utilizador['email'];
-            $_SESSION['user_tipo'] = $utilizador['tipo'];
+
             header('Location: ../painel/home.php');
             exit;
         } else {
-            $erro = 'Credenciais inválidas.';
+            $erro = 'E-mail ou palavra-passe incorretos.';
         }
     }
 }
@@ -35,39 +43,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appo - Login</title>
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/validacao.js" defer></script>
 </head>
 <body>
-<div class="container">
-    <h1>Appo — Agendamentos Online</h1>
-    <h2>Login</h2>
 
-    <?php if ($erro): ?>
-        <div class="alert erro"><?php echo htmlspecialchars($erro); ?></div>
-    <?php endif; ?>
+    <div class="container">
+        <div class="card">
+            <h2>Appo — Agendamentos</h2>
 
-    <form id="form-login" method="post" action="login.php" onsubmit="return validarLogin();">
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required>
+            <?php if ($erro !== ''): ?>
+                <div class="alert erro">
+                    <?= htmlspecialchars($erro) ?>
+                </div>
+            <?php endif; ?>
+
+            <form id="form-login" action="login.php" method="POST" novalidate>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com">
+                    <span class="mensagem-erro" id="erro-email">Insira um e-mail válido.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="palavra_passe">Palavra-passe</label>
+                    <input type="password" id="palavra_passe" name="palavra_passe" placeholder="******">
+                    <span class="mensagem-erro" id="erro-senha">A palavra-passe é obrigatória.</span>
+                </div>
+
+                <button type="submit" class="btn">Entrar</button>
+            </form>
+
+            <div class="link-box">
+                <p>Ainda não tem conta? <a href="registo.php">Registe-se aqui</a></p>
+            </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label for="senha">Senha:</label>
-            <input type="password" name="senha" id="senha" required>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit">Entrar</button>
-        </div>
-
-        <p class="link">
-            Ainda não tem conta?
-            <a href="registo.php">Registar</a>
-        </p>
-    </form>
-</div>
+    <script src="../js/validacao.js" defer></script>
 </body>
 </html>
