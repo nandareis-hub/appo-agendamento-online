@@ -112,11 +112,12 @@ button:hover, .btn:hover {
 }
 
 .btn-destaque {
-    background-color: #28a745 !important;
+    background-color: #7e807e !important;
+    color: #ffffff !important;
 }
 
 .btn-destaque:hover {
-    background-color: #218838 !important;
+    background-color: #7e807e !important;
 }
 
 .btn-cancelar, .btn-danger {
@@ -217,7 +218,7 @@ button:hover, .btn:hover {
 .menu a {
     padding: 8px 14px;
     text-decoration: none;
-    color: #007bff;
+    color: #ffffff;
     font-weight: bold;
     border-radius: 4px;
     transition: background-color 0.2s;
