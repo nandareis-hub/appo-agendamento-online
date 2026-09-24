@@ -115,7 +115,8 @@ try {
                                 <td style="padding:10px;"><strong><?= htmlspecialchars($m['estado']) ?></strong></td>
                                 <td>
                                     <a href="editar-marcacao.php?id=<?= $m['id_marcacao'] ?>"
-                                     style="background:#007bff; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px;">
+                                     style="background:#007bff; color:white; padding:6px 12px; border-radius:4px; 
+                                     text-decoration:none; font-size:14px; margin-right: 5px;">
                                      Editar
                                 </a>
 
