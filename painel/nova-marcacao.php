@@ -36,46 +36,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dataInput = $_POST['data'] ?? null;
     $horaInput = $_POST['hora'] ?? null;
 
+    $duracaoServico = 0;
+
+    $stmtDuracao = $pdo->prepare("SELECT duracao FROM servicos WHERE id_servico = :servico");
+    $stmtDuracao->execute([':servico' => $idServico]);
+    $servico = $stmtDuracao->fetch();
+
+    if ($servico) {
+        $duracaoServico = (int) $servico['duracao'];
+    }
+
     if (empty($idServico) || empty($idProfissional) || empty($dataInput) || empty($horaInput)) {
         $mensagemErro = "Por favor, preencha todos os campos do formulário.";
     } else {
 
-        // Verificar se o profissional pode realizar o serviço
-        $stmtVerifica = $pdo->prepare("
-        SELECT * FROM profissional_servico
-        WHERE id_profissional = :profissional
-        AND id_servico = :servico
-    ");
+        // Validar data e horário da marcação
+        $dataSelecionada = new DateTime($dataInput);
+        $hoje = new DateTime();
 
-    $stmtVerifica->execute([
-        ':profissional' => $idProfissional,
-        ':servico' => $idServico
-    ]);
+        // Não permitir datas anteriores a hoje
+        if ($dataSelecionada < new DateTime($hoje->format('Y-m-d'))) {
+            $mensagemErro = "Não é possível fazer uma marcação para uma data que já passou.";
+        }
 
-    $permissao = $stmtVerifica->fetch();
+        // Não permitir marcações aos domingos
+        elseif ($dataSelecionada->format('N') == 7) {
+            $mensagemErro = "Não é possível fazer marcações aos domingos.";
+        }
 
-    if (!$permissao) {
-        $mensagemErro = "A profissional selecionada não realiza este serviço.";
-    } else {
-        try {
-            $sql = "INSERT INTO marcacoes (id_utilizador, id_profissional, id_servico, data, hora, estado) 
-                    VALUES (:user_id, :profissional_id, :servico_id, :data, :hora, 'Pendente')";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':user_id'         => $userId,
-                ':profissional_id' => $idProfissional,
-                ':servico_id'      => $idServico,
-                ':data'            => $dataInput,
-                ':hora'            => $horaInput
+        // Horário de funcionamento: 09:00 às 18:00
+        elseif ($horaInput < '09:00' || $horaInput > '18:00') {
+            $mensagemErro = "O horário de funcionamento é das 09:00 às 18:00.";
+        }
+        // Não permitir horários que já passaram hoje
+        elseif ($dataInput == date('Y-m-d') && $horaInput <= date('H:i')) {
+            $mensagemErro = "O horário selecionado já passou.";
+       }
+       // Não permitir que o serviço termine depois das 18:00
+       elseif (
+           (new DateTime($dataInput . ' ' . $horaInput))
+           ->modify("+{$duracaoServico} minutes")
+           > new DateTime($dataInput . ' 18:00') 
+           ) {
+          $mensagemErro = "O horário escolhido não permite terminar o serviço até às 18:00.";
+       }
+
+       else {
+
+            // Verificar se o profissional pode realizar o serviço
+            $stmtVerifica = $pdo->prepare("
+                SELECT * FROM profissional_servico
+                WHERE id_profissional = :profissional
+                AND id_servico = :servico
+            ");
+
+            $stmtVerifica->execute([
+                ':profissional' => $idProfissional,
+                ':servico'      => $idServico
             ]);
 
-            $mensagemSucesso = "Marcação agendada com sucesso!";
-        } catch (PDOException $e) {
-            $mensagemErro = "Erro ao guardar a marcação: " . $e->getMessage();
-        }
-      }
-    }
-}
+            $permissao = $stmtVerifica->fetch();
+
+            if (!$permissao) {
+                $mensagemErro = "A profissional selecionada não realiza este serviço.";
+            } else {
+                try {
+                    $sql = "INSERT INTO marcacoes (id_utilizador, id_profissional, id_servico, data, hora, estado) 
+                            VALUES (:user_id, :profissional_id, :servico_id, :data, :hora, 'Pendente')";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':user_id'         => $userId,
+                        ':profissional_id' => $idProfissional,
+                        ':servico_id'      => $idServico,
+                        ':data'            => $dataInput,
+                        ':hora'            => $horaInput
+                    ]);
+
+                    $mensagemSucesso = "Marcação agendada com sucesso!";
+                } catch (PDOException $e) {
+                    $mensagemErro = "Erro ao guardar a marcação: " . $e->getMessage();
+                }
+            } 
+        } 
+    } 
+} 
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -142,12 +186,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="data" style="display:block; font-weight:bold; margin-bottom: 5px;">Data:</label>
-                <input type="date" name="data" id="data" class="form-control" style="width:100%; padding:10px;" required>
+                <input type="date" name="data" id="data" class="form-control" style="width:100%; padding:10px;" min="<?= date('Y-m-d') ?>" required>
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
                 <label for="hora" style="display:block; font-weight:bold; margin-bottom: 5px;">Hora:</label>
-                <input type="time" name="hora" id="hora" class="form-control" style="width:100%; padding:10px;" required>
+                <input type="time" name="hora" id="hora" class="form-control" style="width:100%; padding:10px;" min="09:00" max="18:00" required>
             </div>
 
             <div class="form-actions">
@@ -158,6 +202,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </main>
 </div>
+<script>
+document.getElementById('data').addEventListener('change', function() {
+    const data = new Date(this.value + 'T00:00:00');
+
+    if (data.getDay() === 0) {
+        alert('Não é possível fazer marcações aos domingos.');
+        this.value = '';
+    }
+});
+</script>
+<script>
+const campoData = document.getElementById('data');
+const campoHora = document.getElementById('hora');
+const campoServico = document.getElementById('id_servico');
+
+function atualizarHorario() {
+    const dataSelecionada = new Date(campoData.value + 'T00:00:00');
+    const hoje = new Date();
+
+    let horaMinima = '09:00';
+    let horaMaxima = '18:00';
+
+    // Se a data for hoje, não permitir horários que já passaram
+    if (dataSelecionada.toDateString() === hoje.toDateString()) {
+        const horas = String(hoje.getHours()).padStart(2, '0');
+        const minutos = String(hoje.getMinutes()).padStart(2, '0');
+
+        horaMinima = horas + ':' + minutos;
+    }
+
+    // Verificar a duração do serviço
+    const opcaoServico = campoServico.options[campoServico.selectedIndex];
+
+    if (opcaoServico && opcaoServico.value) {
+        const texto = opcaoServico.textContent;
+        const resultado = texto.match(/\((\d+)\s*min\)/);
+
+        if (resultado) {
+            const duracao = parseInt(resultado[1]);
+
+            const horaFim = new Date();
+            horaFim.setHours(18, 0, 0, 0);
+            horaFim.setMinutes(horaFim.getMinutes() - duracao);
+
+            const horasFim = String(horaFim.getHours()).padStart(2, '0');
+            const minutosFim = String(horaFim.getMinutes()).padStart(2, '0');
+
+            horaMaxima = horasFim + ':' + minutosFim;
+        }
+    }
+
+    campoHora.min = horaMinima;
+    campoHora.max = horaMaxima;
+}
+
+campoData.addEventListener('change', atualizarHorario);
+campoServico.addEventListener('change', atualizarHorario);
+</script>
 
 </body>
 </html>
