@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../includes/conexao.php';
 require_once __DIR__ . '/../includes/funcoes.php';
+require_once __DIR__ . '/../includes/automacao_sistema.php';
 
 if (!isLoggedIn()) {
     header('Location: ../auth/login.php');
@@ -20,6 +21,17 @@ try {
     $totalMarcacoes = $stmt->fetchColumn();
 } catch (PDOException $e) {
     // Ignora erro de tabela inexistente
+}
+
+// Consultar notificações não lidas do utilizador
+$minhasNotificacoes = [];
+try {
+    $stmtNotif = $pdo->prepare("SELECT * FROM notificacoes WHERE id_utilizador = :user_id AND lida = 0 ORDER BY data_criacao DESC");
+    $stmtNotif->execute([':user_id' => $userId]);
+    $minhasNotificacoes = $stmtNotif->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Ignores erro se a tabela ainda não existir
+    $minhasNotificacoes = [];
 }
 ?>
 <!DOCTYPE html>
@@ -62,6 +74,23 @@ try {
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="card-conteudo">
         <h2>Resumo de marcações</h2>
+
+    <!-- Bloco de Alertas de Notificações -->
+    <?php if (!empty($minhasNotificacoes)): ?>
+        <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 16px;">
+                🔔 Novas Notificações (<?php echo count($minhasNotificacoes); ?>)
+            </h4>
+            <ul style="margin: 0; padding-left: 20px;">
+                <?php foreach ($minhasNotificacoes as $n): ?>
+                    <li style="margin-bottom: 5px;">
+                        <?php echo htmlspecialchars($n['mensagem']); ?>
+                        <small style="color: #6c757d;">(<?php echo date('d/m/Y H:i', strtotime($n['data_criacao'])); ?>)</small>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
         <?php if ($totalMarcacoes > 0): ?>
             <div class="alert sucesso">
