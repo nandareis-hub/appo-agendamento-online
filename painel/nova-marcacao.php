@@ -98,9 +98,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $permissao = $stmtVerifica->fetch();
 
             if (!$permissao) {
-                $mensagemErro = "A profissional selecionada não realiza este serviço.";
+               $mensagemErro = "A profissional selecionada não realiza este serviço.";
             } else {
-                try {
+
+                 // Verificar se a profissional já possui uma marcação
+                 // na mesma data e horário
+                 $stmtConflito = $pdo->prepare("
+
+                    SELECT id_marcacao
+                    FROM marcacoes
+                    WHERE id_profissional = :profissional
+                    AND data = :data
+                    AND hora = :hora
+                    AND estado != 'Cancelada'
+                    LIMIT 1
+                ");
+
+            $stmtConflito->execute([':profissional' => $idProfissional, ':data' => $dataInput,':hora' => $horaInput ]);
+
+            $conflito = $stmtConflito->fetch();
+
+            if ($conflito) {
+
+                $mensagemErro = "A profissional selecionada já possui uma marcação para esta data e horário.";
+
+            } else {
+
+            try {
                     $sql = "INSERT INTO marcacoes (id_utilizador, id_profissional, id_servico, data, hora, estado) 
                             VALUES (:user_id, :profissional_id, :servico_id, :data, :hora, 'Pendente')";
                     $stmt = $pdo->prepare($sql);
@@ -116,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (PDOException $e) {
                     $mensagemErro = "Erro ao guardar a marcação: " . $e->getMessage();
                 }
+              }
             } 
         } 
     } 
