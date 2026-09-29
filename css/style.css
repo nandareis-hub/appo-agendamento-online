@@ -10,6 +10,12 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+
+    /* BACKGROUND GLOBAL */
+    background-image: url('../img/appo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Container Principal */
@@ -91,11 +97,11 @@ input:focus, select:focus {
     margin-top: 4px;
 }
 
-/* Botões */
+/* Botões — atualizado para tons pastel frios */
 button, .btn {
     display: inline-block;
     padding: 10px 18px;
-    background-color: #007bff;
+    background-color: #A8D5BF; /* verde médio pastel */
     border: none;
     border-radius: 4px;
     color: #ffffff;
@@ -108,16 +114,51 @@ button, .btn {
 }
 
 button:hover, .btn:hover {
-    background-color: #0056b3;
+    background-color: #7FBFA6; /* verde escuro pastel */
 }
 
+/* Botões especiais */
 .btn-destaque {
-    background-color: #7e807e !important;
+    background-color: #4A6F63 !important; /* verde escuro APPO */
     color: #ffffff !important;
 }
 
 .btn-destaque:hover {
-    background-color: #7e807e !important;
+    background-color: #3E5C53 !important; /* versão ligeiramente mais escura */
+}
+
+/* Botão Sair (vermelho elegante) */
+.btn-sair {
+    margin-left: 10px;
+    padding: 6px 12px;
+    background-color: #dc3545;
+    color: #ffffff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.btn-sair:hover {
+    background-color: #c82333;
+}
+
+/* Botões Voltar e Guardar — amarelos frios pastel */
+.btn-voltar {
+    background-color: #FFF4C2; /* amarelo claro */
+    color: #333;
+}
+
+.btn-voltar:hover {
+    background-color: #F7E39C; /* amarelo médio */
+}
+
+.btn-guardar {
+    background-color: #F7E39C; /* amarelo médio */
+    color: #333;
+}
+
+.btn-guardar:hover {
+    background-color: #FFF4C2; /* amarelo claro */
 }
 
 .btn-cancelar, .btn-danger {
@@ -191,21 +232,7 @@ button:hover, .btn:hover {
     font-size: 0.9rem;
 }
 
-.btn-sair {
-    margin-left: 10px;
-    padding: 6px 12px;
-    background-color: #dc3545;
-    color: #ffffff;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.85rem;
-}
-
-.btn-sair:hover {
-    background-color: #c82333;
-}
-
-/* Menu de Navegação */
+/* Menu — atualizado para tons de verde pastel */
 .menu {
     display: flex;
     gap: 10px;
@@ -218,18 +245,20 @@ button:hover, .btn:hover {
 .menu a {
     padding: 8px 14px;
     text-decoration: none;
-    color: #ffffff;
+    background-color: #CFE8D9; /* verde claro pastel */
+    color: #333;
     font-weight: bold;
     border-radius: 4px;
     transition: background-color 0.2s;
 }
 
 .menu a:hover {
-    background-color: #e2e6ea;
+    background-color: #A8D5BF; /* verde médio pastel */
+    color: #ffffff;
 }
 
 .menu a.active {
-    background-color: #007bff;
+    background-color: #7FBFA6; /* verde escuro pastel */
     color: #ffffff;
 }
 
