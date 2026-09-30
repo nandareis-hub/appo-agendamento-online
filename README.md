@@ -52,7 +52,6 @@ O **APPO** é uma plataforma web responsiva, dinâmica e segura que resolve este
 
 A aplicação segue uma arquitetura modular em 3 camadas, com separação clara de responsabilidades:
 
-
 Interface Web (HTML/CSS/JS)
 
 │
@@ -66,7 +65,6 @@ Backend PHP (autenticação, validações, regras de agendamento)
 ▼
 
 Base de Dados MySQL (utilizadores, profissionais, serviços, marcações)
-
 
 **Modelo relacional** (5 tabelas):
 
@@ -204,18 +202,18 @@ Durante a fase de testes (ver `docs/04-plano-de-testes.pdf`), foram identificada
 
 ## Vídeo Demonstrativo
 
-🔗 [Inserir aqui o link do vídeo demonstrativo]
+🔗 
 
 ---
 
 ## Organização das Branches
 
-| Branch                | Finalidade                    |
-| --------------------- | ----------------------------- |
-| `main`              | Versão estável do projeto   |
-| `thami-conexao-bd`  | Base de dados e ligação PHP |
-| `fernanda-frontend` | Desenvolvimento do frontend   |
-| `mairane-backend`   | Desenvolvimento do backend    |
+| Branch                      | Finalidade                    |
+| --------------------------- | ----------------------------- |
+| `master`                  | Versão estável do projeto   |
+| `thami-conexao-bd`        | Base de dados e ligação PHP |
+| `feature/update-frontend` | Desenvolvimento do frontend   |
+| `feature/update-backend`  | Desenvolvimento do backend    |
 
 ---
 
