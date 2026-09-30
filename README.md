@@ -1,4 +1,5 @@
 
+
 # 📅 APPO – Agendamentos Online
 
 Projeto desenvolvido no âmbito da Unidade Curricular **UC615**.
@@ -13,7 +14,9 @@ O APPO é uma plataforma de gestão de agendamentos online que permite aos clien
 - Consulta de profissionais e serviços
 - Criação de marcações
 - Consulta de marcações
+- Edição de marcações
 - Cancelamento de marcações
+- Logout seguro
 
 ---
 
@@ -36,6 +39,7 @@ appo-agendamento-online/
 │
 ├── auth/
 │   ├── login.php
+│   ├── logout.php
 │   └── registo.php
 │
 ├── css/
@@ -45,10 +49,21 @@ appo-agendamento-online/
 │   └── appo.sql
 │
 ├── docs/
+│   ├── evidencias_testes/
+│   │   ├── Fernanda_Reis_evidencias-testes.mp4
+│   │   ├── Mairane-t4aot7-t11.mp4
+│   │   └── Thamires_Santos_Auth_Login.mp4
 │   ├── 01-analise-requisitos-appo.pdf
-│   └── 02-desenvolvimento-controle-de-versoes.pdf
+│   ├── 02-desenvolvimento-controle-de-versoes.pdf
+│   ├── 03-prototipo-funcional.pdf
+│   ├── 04-plano-de-testes.pdf
+│   └── 04.1-relatorio-do-desenvolvimento-da-app.pdf
+│
+├── img/
+│   └── appo.png
 │
 ├── includes/
+│   ├── automacao_sistema.php
 │   ├── conexao.php
 │   └── funcoes.php
 │
@@ -57,13 +72,28 @@ appo-agendamento-online/
 │   └── validacao.js
 │
 ├── painel/
+│   ├── editar-marcacao.php
 │   ├── home.php
 │   ├── minhas-marcacoes.php
 │   └── nova-marcacao.php
 │
 ├── .gitignore
-└── README.md
+├── README.md
+└── teste_conexao.php
 ```
+
+---
+
+## Documentação
+
+O projeto inclui documentação completa nas várias etapas de desenvolvimento, disponível na pasta `docs/`:
+
+- **01 — Análise de Requisitos**: identificação do problema, objetivos e requisitos funcionais/não funcionais
+- **02 — Desenvolvimento e Controlo de Versões**: tecnologias, arquitetura e planeamento do trabalho em equipa
+- **03 — Protótipo Funcional**: apresentação do protótipo desenvolvido
+- **04 — Plano de Testes**: casos de teste definidos para validação da aplicação
+- **04.1 — Relatório do Desenvolvimento**: relatório final sobre o processo de desenvolvimento
+- **Evidências de Testes**: vídeos de demonstração dos testes realizados por cada elemento do grupo
 
 ---
 
@@ -121,4 +151,4 @@ http://localhost/appo-agendamento-online
 
 ## Estado do Projeto
 
-🚧 Em desenvolvimento.
+✅ Concluído — todas as funcionalidades planeadas foram implementadas, testadas e documentadas.
