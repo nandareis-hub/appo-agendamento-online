@@ -126,8 +126,8 @@ appo-agendamento-online/
 │   └── nova-marcacao.php
 │
 ├── .gitignore
-├── README.md
-└── teste_conexao.php
+└──  README.md
+
 ```
 
 ---
